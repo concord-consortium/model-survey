@@ -1,0 +1,16 @@
+{
+  "name": "your-app",
+  "version": "0.0.1",
+  "main": "public/app.js",
+  "ignore": [
+    "app",
+    "vendor",
+    "brunch-config.coffee",
+    "package.json"
+  ],
+  "dependencies": {
+    "react": ">= 0.12.0",
+    "jquery": "2.1.1"
+  },
+  "overrides": {}
+}

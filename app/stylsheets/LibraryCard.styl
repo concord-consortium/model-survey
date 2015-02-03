@@ -1,0 +1,52 @@
+.library-card
+  font-family sans-serif, helvetica
+  text-align center
+  display inline-block
+  margin 0.5em
+  vertical-align top
+  overflow scroll
+  padding: 0px
+  border 1px solid gray
+  
+  width 300px
+  border-radius 5px
+  background-color: #fff
+  &:hover
+    box-shadow 5px 5px 10px #aaa
+  .link
+      width 100%
+      a
+        display inline-block
+        padding 0.5em
+        font-family inherit
+        font-size 12pt
+        text-decoration none
+        color white
+        background-color gray
+        width 100%
+
+      a:hover
+          color white
+          background-color black
+
+  .screenshot
+    margin 1em
+    img
+      height 100px
+      border 2px solid #eee
+      &:hover
+        border 2px solid #555
+
+  .comment
+    padding 1em
+    padding-top 0.5em
+    text-align left
+
+  .stars
+    font-size 13pt
+    font-weight bold
+    color #aaa
+    span.no-star
+      color #eee
+    span.star
+      color gold
