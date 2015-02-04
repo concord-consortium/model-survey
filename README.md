@@ -11,11 +11,14 @@ These graph libraries might be used in whole or part for a system modeling web a
     * [Bower](http://bower.io): `npm install -g bower`
     * Brunch plugins and Bower dependencies: `npm install & bower install`.
 
-### Build the static site:
-    * `./build.sh`
-
-### Test:
+### Adding new Library reviews:
 
     * `brunch watch --server` — watches the project with continuous rebuild. This will also launch HTTP server with [pushState](https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Manipulating_the_browser_history).
+    * `open http://localhost:3333/`
+    * Add content to `app/assests/libraries.json`
+    * When things look good commit your changes, and build for gh-pages (next section)
+
+### Build the static gh-pages site:
+    * `./build.sh`
 
 Under [MIT License](LICENSE)
