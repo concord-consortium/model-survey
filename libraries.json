@@ -53,7 +53,7 @@
     "stars": 3,
     "name": "JsPlumb",
     "license": "MIT & GPL",
-    "comment": "This looks like a well maintained library. Has good event support,",
+    "comment": "This looks like a well maintained library. Has good event support, should investigate further.",
     "link": "https://jsplumbtoolkit.com/demo/dynamicAnchors/dom.html",
     "screenshot": "images/jsplumb.jpg"
   }
