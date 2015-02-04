@@ -14,7 +14,10 @@ var LibraryCard = React.createClass({
     return (
       <div className="library-card">
         <div className="link">
-          <a href={this.props.data.link} target="_blank">{this.props.data.name }</a>
+          <a href={this.props.data.link} target="_blank">
+            <div className="name">{this.props.data.name }</div>
+            <div className="license">({this.props.data.license})</div>
+          </a>
         </div>
         <div className="stars">
           {stars}

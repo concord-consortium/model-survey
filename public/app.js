@@ -1,1 +1,178 @@
-!function(){"use strict";var e="undefined"!=typeof window?window:global;if("function"!=typeof e.require){var r={},t={},a=function(e,r){return{}.hasOwnProperty.call(e,r)},n=function(e,r){var t,a,n=[];t=/^\.\.?(\/|$)/.test(r)?[e,r].join("/").split("/"):r.split("/");for(var i=0,s=t.length;s>i;i++)a=t[i],".."===a?n.pop():"."!==a&&""!==a&&n.push(a);return n.join("/")},i=function(e){return e.split("/").slice(0,-1).join("/")},s=function(r){return function(t){var a=i(r),s=n(a,t);return e.require(s,r)}},c=function(e,r){var a={id:e,exports:{}};return t[e]=a,r(a.exports,s(e),a),a.exports},o=function(e,i){var s=n(e,".");if(null==i&&(i="/"),a(t,s))return t[s].exports;if(a(r,s))return c(s,r[s]);var o=n(s,"./index");if(a(t,o))return t[o].exports;if(a(r,o))return c(o,r[o]);throw new Error('Cannot find module "'+e+'" from "'+i+'"')},u=function(e,t){if("object"==typeof e)for(var n in e)a(e,n)&&(r[n]=e[n]);else r[e]=t},l=function(){var e=[];for(var t in r)a(r,t)&&e.push(t);return e};e.require=o,e.require.define=u,e.require.register=u,e.require.list=l,e.require.brunch=!0}}(),require.register("javascripts/library_card",function(e,r,t){var a=React.createClass({displayName:"LibraryCard",render:function(){for(var e=[],r=this.props.data.stars||0,t="no-star",a=1;5>=a;a++)r>=a&&(t="star"),e.push(React.createElement("span",{className:t}," ★ ")),t="no-star";return React.createElement("div",{className:"library-card"},React.createElement("div",{className:"link"},React.createElement("a",{href:this.props.data.link,target:"_blank"},this.props.data.name)),React.createElement("div",{className:"stars"},e),React.createElement("div",{className:"screenshot"},React.createElement("a",{href:this.props.data.link,target:"_blank"},React.createElement("img",{src:this.props.data.screenshot}))),React.createElement("div",{className:"comment"},this.props.data.comment))}});t.exports=a}),require.register("javascripts/library_list",function(e,r,t){var a=r("./library_card"),n=React.createClass({displayName:"LibraryList",getInitialState:function(){return{data:[]}},componentDidMount:function(){$.ajax({url:this.props.url,dataType:"json",success:function(e){this.setState({data:e})}.bind(this),error:function(e,r,t){console.error(this.props.url,r,t.toString())}.bind(this)})},render:function(){var e=this.state.data.sort(function(e,r){return r.stars-e.stars}).map(function(e){return React.createElement(a,{data:e})});return React.createElement("div",{className:"libraryNodes"},e)}});React.render(React.createElement(n,{url:"libraries.json"}),document.getElementById("library")),t.exports=n});
+(function(/*! Brunch !*/) {
+  'use strict';
+
+  var globals = typeof window !== 'undefined' ? window : global;
+  if (typeof globals.require === 'function') return;
+
+  var modules = {};
+  var cache = {};
+
+  var has = function(object, name) {
+    return ({}).hasOwnProperty.call(object, name);
+  };
+
+  var expand = function(root, name) {
+    var results = [], parts, part;
+    if (/^\.\.?(\/|$)/.test(name)) {
+      parts = [root, name].join('/').split('/');
+    } else {
+      parts = name.split('/');
+    }
+    for (var i = 0, length = parts.length; i < length; i++) {
+      part = parts[i];
+      if (part === '..') {
+        results.pop();
+      } else if (part !== '.' && part !== '') {
+        results.push(part);
+      }
+    }
+    return results.join('/');
+  };
+
+  var dirname = function(path) {
+    return path.split('/').slice(0, -1).join('/');
+  };
+
+  var localRequire = function(path) {
+    return function(name) {
+      var dir = dirname(path);
+      var absolute = expand(dir, name);
+      return globals.require(absolute, path);
+    };
+  };
+
+  var initModule = function(name, definition) {
+    var module = {id: name, exports: {}};
+    cache[name] = module;
+    definition(module.exports, localRequire(name), module);
+    return module.exports;
+  };
+
+  var require = function(name, loaderPath) {
+    var path = expand(name, '.');
+    if (loaderPath == null) loaderPath = '/';
+
+    if (has(cache, path)) return cache[path].exports;
+    if (has(modules, path)) return initModule(path, modules[path]);
+
+    var dirIndex = expand(path, './index');
+    if (has(cache, dirIndex)) return cache[dirIndex].exports;
+    if (has(modules, dirIndex)) return initModule(dirIndex, modules[dirIndex]);
+
+    throw new Error('Cannot find module "' + name + '" from '+ '"' + loaderPath + '"');
+  };
+
+  var define = function(bundle, fn) {
+    if (typeof bundle === 'object') {
+      for (var key in bundle) {
+        if (has(bundle, key)) {
+          modules[key] = bundle[key];
+        }
+      }
+    } else {
+      modules[bundle] = fn;
+    }
+  };
+
+  var list = function() {
+    var result = [];
+    for (var item in modules) {
+      if (has(modules, item)) {
+        result.push(item);
+      }
+    }
+    return result;
+  };
+
+  globals.require = require;
+  globals.require.define = define;
+  globals.require.register = define;
+  globals.require.list = list;
+  globals.require.brunch = true;
+})();
+require.register("javascripts/library_card", function(exports, require, module) {
+var LibraryCard = React.createClass({displayName: "LibraryCard",
+  render: function() {
+    var stars = [];
+    var starCount = this.props.data.stars || 0;
+    var class_name = "no-star"
+    for (var i=1; i <= 5; i++) {
+      if (i <= starCount) {
+        class_name = "star"
+      }
+      stars.push(React.createElement("span", {className: class_name}, " ★ "));
+      class_name = "no-star";
+    }
+
+    return (
+      React.createElement("div", {className: "library-card"}, 
+        React.createElement("div", {className: "link"}, 
+          React.createElement("a", {href: this.props.data.link, target: "_blank"}, 
+            React.createElement("div", {className: "name"}, this.props.data.name), 
+            React.createElement("div", {className: "license"}, "(", this.props.data.license, ")")
+          )
+        ), 
+        React.createElement("div", {className: "stars"}, 
+          stars
+        ), 
+        React.createElement("div", {className: "screenshot"}, 
+          React.createElement("a", {href: this.props.data.link, target: "_blank"}, 
+            React.createElement("img", {src: this.props.data.screenshot})
+          )
+        ), 
+        React.createElement("div", {className: "comment"}, this.props.data.comment)
+      )
+    );
+  }
+});
+
+module.exports = LibraryCard;
+});
+
+require.register("javascripts/library_list", function(exports, require, module) {
+// tutorial10.js
+var LibraryCard = require('./library_card');
+var LibraryList = React.createClass({displayName: "LibraryList",
+  getInitialState: function() {
+    return {data: []};
+  },
+
+  componentDidMount: function() {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+  },
+
+  render: function() {
+    var libraryNodes = this.state.data.sort(function(a,b) {
+      return b.stars - a.stars;
+    }).map(function (library) {
+      return (
+        React.createElement(LibraryCard, {data: library})
+      );
+    });
+    return (
+      React.createElement("div", {className: "libraryNodes"}, 
+        libraryNodes
+      )
+    );
+  }
+});
+
+React.render(
+  React.createElement(LibraryList, {url: "libraries.json"}),
+  document.getElementById('library')
+);
+
+module.exports = LibraryList;
+});
+
+
+//# sourceMappingURL=app.js.map

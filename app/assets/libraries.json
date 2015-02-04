@@ -16,7 +16,7 @@
   },{
     "stars": 1,
     "name": "networkD3",
-    "license": "",
+    "license": "not specified",
     "comment": "Has Sankey diagrams, and R, but not useful otherwise.",
     "link": "https://github.com/christophergandrud/networkD3",
     "screenshot": "images/networkD3.jpg"
