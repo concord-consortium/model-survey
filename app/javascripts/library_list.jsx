@@ -5,10 +5,9 @@ var LibraryList = React.createClass({
     return {data: []};
   },
 
-  componentDidMount: function() {
-    var oldLoadData = function() {
-      $.ajax({
-        url: this.props.url,
+  loadLocalData: function() {
+    $.ajax({
+        url: this.props.localUrl,
         dataType: 'json',
         success: function(data) {
           this.setState({data: data});
@@ -17,22 +16,25 @@ var LibraryList = React.createClass({
           console.error(this.props.url, status, err.toString());
         }.bind(this)
       });
-    };
+  },
 
-    var showInfo = function(data,tabletop) {
-      this.setState({data:data});
-    }.bind(this);
+  loadGoogleSheet: function() {
+    var sheetUrl = "https://docs.google.com/spreadsheets/d/1HH1tsLKopqA0l4U0EiOHTo50rpnm9BrSbqKn8bTbqh0/pubhtml?gid=532028845&single=true";
+    Tabletop.init({ 
+      key: sheetUrl,
+      callback: function(data, tabletop){this.setState({data:data});}.bind(this) ,
+      simpleSheet: true 
+    });    
+  },
 
-    var loadData = function() {
-      var sheetUrl = "https://docs.google.com/spreadsheets/d/1HH1tsLKopqA0l4U0EiOHTo50rpnm9BrSbqKn8bTbqh0/pubhtml?gid=532028845&single=true";
-      Tabletop.init({ 
-        key: sheetUrl,
-        callback: showInfo,
-        simpleSheet: true 
-      });    
-    }.bind(this);
-    loadData();
-    setInterval(loadData,5000);
+  componentDidMount: function() {
+    this.loadLocalData();
+    this.loadGoogleSheet();
+    this.interval = setInterval(this.loadGoogleSheet,5000);
+  },
+
+  componentWillunmount: function() {
+    clearInterval(this.interval);
   },
 
   render: function() {
@@ -52,7 +54,7 @@ var LibraryList = React.createClass({
 });
 
 React.render(
-  <LibraryList url="libraries.json"/>,
+  <LibraryList localUrl="libraries.json"/>,
   document.getElementById('library')
 );
 
