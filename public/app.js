@@ -1,1 +1,257 @@
-!function(){"use strict";var e="undefined"!=typeof window?window:global;if("function"!=typeof e.require){var t={},r={},a=function(e,t){return{}.hasOwnProperty.call(e,t)},n=function(e,t){var r,a,n=[];r=/^\.\.?(\/|$)/.test(t)?[e,t].join("/").split("/"):t.split("/");for(var i=0,s=r.length;s>i;i++)a=r[i],".."===a?n.pop():"."!==a&&""!==a&&n.push(a);return n.join("/")},i=function(e){return e.split("/").slice(0,-1).join("/")},s=function(t){return function(r){var a=i(t),s=n(a,r);return e.require(s,t)}},c=function(e,t){var a={id:e,exports:{}};return r[e]=a,t(a.exports,s(e),a),a.exports},o=function(e,i){var s=n(e,".");if(null==i&&(i="/"),a(r,s))return r[s].exports;if(a(t,s))return c(s,t[s]);var o=n(s,"./index");if(a(r,o))return r[o].exports;if(a(t,o))return c(o,t[o]);throw new Error('Cannot find module "'+e+'" from "'+i+'"')},l=function(e,r){if("object"==typeof e)for(var n in e)a(e,n)&&(t[n]=e[n]);else t[e]=r},u=function(){var e=[];for(var r in t)a(t,r)&&e.push(r);return e};e.require=o,e.require.define=l,e.require.register=l,e.require.list=u,e.require.brunch=!0}}(),require.register("javascripts/library_card",function(e,t,r){var a=React.createClass({displayName:"LibraryCard",render:function(){for(var e=[],t=this.props.data.stars||0,r="no-star",a=1;5>=a;a++)t>=a&&(r="star"),e.push(React.createElement("span",{className:r}," ★ ")),r="no-star";return React.createElement("div",{className:"library-card"},React.createElement("div",{className:"link"},React.createElement("a",{href:this.props.data.link,target:"_blank"},React.createElement("div",{className:"name"},this.props.data.name),React.createElement("div",{className:"license"},"(",this.props.data.license,")"))),React.createElement("div",{className:"stars"},e),React.createElement("div",{className:"screenshot"},React.createElement("a",{href:this.props.data.link,target:"_blank"},React.createElement("img",{src:this.props.data.screenshot}))),React.createElement("div",{className:"comment"},this.props.data.comment))}});r.exports=a}),require.register("javascripts/library_list",function(e,t,r){var a=t("./library_card"),n=React.createClass({displayName:"LibraryList",getInitialState:function(){return{data:[]}},loadLocalData:function(){$.ajax({url:this.props.localUrl,dataType:"json",success:function(e){this.setState({data:e})}.bind(this),error:function(e,t,r){console.error(this.props.url,t,r.toString())}.bind(this)})},loadGoogleSheet:function(){var e="https://docs.google.com/spreadsheets/d/1HH1tsLKopqA0l4U0EiOHTo50rpnm9BrSbqKn8bTbqh0/pubhtml?gid=532028845&single=true";Tabletop.init({key:e,callback:function(e){this.setState({data:e})}.bind(this),simpleSheet:!0})},componentDidMount:function(){this.loadLocalData(),this.loadGoogleSheet(),this.interval=setInterval(this.loadGoogleSheet,5e3)},componentWillunmount:function(){clearInterval(this.interval)},render:function(){var e=this.state.data.sort(function(e,t){return t.stars-e.stars}).map(function(e){return React.createElement(a,{data:e})});return React.createElement("div",{className:"libraryNodes"},e)}});React.render(React.createElement(n,{localUrl:"libraries.json"}),document.getElementById("library")),r.exports=n}),require.register("javascripts/svg",function(e,t,r){var a=React.createClass({displayName:"MyRect",getInitialState:function(){return{x:this.props.x||100*Math.random(),y:this.props.y||100*Math.random(),width:this.props.width||2,height:this.props.height||10}},style:function(){return{opacity:"0.8",stroke:"#000",fill:"none"}},render:function(){return React.createElement("rect",{x:this.state.x,y:this.state.y,width:this.state.width,height:this.state.height,style:this.style()})}}),n=React.createClass({displayName:"MySvg",getInitialState:function(){return{elements:[{x:10,y:10},{x:20,y:10}]}},componentDidMount:function(){},render:function(){var e=0,t=this.state.elements.map(function(){return e+=1,React.createElement("g",null,React.createElement(a,null))});return React.createElement("svg",{width:"100",height:"100"},t)}});React.render(React.createElement(n,null),document.getElementById("svg")),r.exports=n});
+(function(/*! Brunch !*/) {
+  'use strict';
+
+  var globals = typeof window !== 'undefined' ? window : global;
+  if (typeof globals.require === 'function') return;
+
+  var modules = {};
+  var cache = {};
+
+  var has = function(object, name) {
+    return ({}).hasOwnProperty.call(object, name);
+  };
+
+  var expand = function(root, name) {
+    var results = [], parts, part;
+    if (/^\.\.?(\/|$)/.test(name)) {
+      parts = [root, name].join('/').split('/');
+    } else {
+      parts = name.split('/');
+    }
+    for (var i = 0, length = parts.length; i < length; i++) {
+      part = parts[i];
+      if (part === '..') {
+        results.pop();
+      } else if (part !== '.' && part !== '') {
+        results.push(part);
+      }
+    }
+    return results.join('/');
+  };
+
+  var dirname = function(path) {
+    return path.split('/').slice(0, -1).join('/');
+  };
+
+  var localRequire = function(path) {
+    return function(name) {
+      var dir = dirname(path);
+      var absolute = expand(dir, name);
+      return globals.require(absolute, path);
+    };
+  };
+
+  var initModule = function(name, definition) {
+    var module = {id: name, exports: {}};
+    cache[name] = module;
+    definition(module.exports, localRequire(name), module);
+    return module.exports;
+  };
+
+  var require = function(name, loaderPath) {
+    var path = expand(name, '.');
+    if (loaderPath == null) loaderPath = '/';
+
+    if (has(cache, path)) return cache[path].exports;
+    if (has(modules, path)) return initModule(path, modules[path]);
+
+    var dirIndex = expand(path, './index');
+    if (has(cache, dirIndex)) return cache[dirIndex].exports;
+    if (has(modules, dirIndex)) return initModule(dirIndex, modules[dirIndex]);
+
+    throw new Error('Cannot find module "' + name + '" from '+ '"' + loaderPath + '"');
+  };
+
+  var define = function(bundle, fn) {
+    if (typeof bundle === 'object') {
+      for (var key in bundle) {
+        if (has(bundle, key)) {
+          modules[key] = bundle[key];
+        }
+      }
+    } else {
+      modules[bundle] = fn;
+    }
+  };
+
+  var list = function() {
+    var result = [];
+    for (var item in modules) {
+      if (has(modules, item)) {
+        result.push(item);
+      }
+    }
+    return result;
+  };
+
+  globals.require = require;
+  globals.require.define = define;
+  globals.require.register = define;
+  globals.require.list = list;
+  globals.require.brunch = true;
+})();
+require.register("javascripts/library_card", function(exports, require, module) {
+var LibraryCard = React.createClass({displayName: "LibraryCard",
+  render: function() {
+    var stars = [];
+    var starCount = this.props.data.stars || 0;
+    var class_name = "no-star"
+    for (var i=1; i <= 5; i++) {
+      if (i <= starCount) {
+        class_name = "star"
+      }
+      stars.push(React.createElement("span", {className: class_name}, " ★ "));
+      class_name = "no-star";
+    }
+
+    return (
+      React.createElement("div", {className: "library-card"}, 
+        React.createElement("div", {className: "link"}, 
+          React.createElement("a", {href: this.props.data.link, target: "_blank"}, 
+            React.createElement("div", {className: "name"}, this.props.data.name), 
+            React.createElement("div", {className: "license"}, "(", this.props.data.license, ")")
+          )
+        ), 
+        React.createElement("div", {className: "stars"}, 
+          stars
+        ), 
+        React.createElement("div", {className: "screenshot"}, 
+          React.createElement("a", {href: this.props.data.link, target: "_blank"}, 
+            React.createElement("img", {src: this.props.data.screenshot})
+          )
+        ), 
+        React.createElement("div", {className: "comment"}, this.props.data.comment)
+      )
+    );
+  }
+});
+
+module.exports = LibraryCard;
+});
+
+require.register("javascripts/library_list", function(exports, require, module) {
+// tutorial10.js
+var LibraryCard = require('./library_card');
+var LibraryList = React.createClass({displayName: "LibraryList",
+  getInitialState: function() {
+    return {data: []};
+  },
+
+  loadLocalData: function() {
+    $.ajax({
+        url: this.props.localUrl,
+        dataType: 'json',
+        success: function(data) {
+          this.setState({data: data});
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error(this.props.url, status, err.toString());
+        }.bind(this)
+      });
+  },
+
+  loadGoogleSheet: function() {
+    var sheetUrl = "https://docs.google.com/spreadsheets/d/1HH1tsLKopqA0l4U0EiOHTo50rpnm9BrSbqKn8bTbqh0/pubhtml?gid=532028845&single=true";
+    Tabletop.init({ 
+      key: sheetUrl,
+      callback: function(data, tabletop){this.setState({data:data});}.bind(this) ,
+      simpleSheet: true 
+    });    
+  },
+
+  componentDidMount: function() {
+    this.loadLocalData();
+    this.loadGoogleSheet();
+    this.interval = setInterval(this.loadGoogleSheet,5000);
+  },
+
+  componentWillunmount: function() {
+    clearInterval(this.interval);
+  },
+
+  render: function() {
+    var libraryNodes = this.state.data.sort(function(a,b) {
+      return b.stars - a.stars;
+    }).map(function (library) {
+      return (
+        React.createElement(LibraryCard, {data: library})
+      );
+    });
+    return (
+      React.createElement("div", {className: "libraryNodes"}, 
+        libraryNodes
+      )
+    );
+  }
+});
+
+React.render(
+  React.createElement(LibraryList, {localUrl: "libraries.json"}),
+  document.getElementById('library')
+);
+
+module.exports = LibraryList;
+});
+
+require.register("javascripts/svg", function(exports, require, module) {
+var MyRect = React.createClass({displayName: "MyRect",
+
+  getInitialState: function() {
+    return {
+      x: this.props.x || Math.random()*100, 
+      y: this.props.y || Math.random()*100,
+      width: this.props.width || 2,
+      height: this.props.height || 10
+    };
+  },
+
+  style: function() {
+    return {'opacity': '0.8', 'stroke': '#000', 'fill': 'none'};
+  },
+  
+  render: function() {
+    return (
+      React.createElement("rect", {x: this.state.x, y: this.state.y, width: this.state.width, height: this.state.height, style: this.style()})
+    );
+  }
+});
+
+var MySvg = React.createClass({displayName: "MySvg",
+  getInitialState: function() {
+    return {elements: [{x: 10, y:10}, {x: 20, y:10} ]};
+  },
+
+  componentDidMount: function() {
+    // setInterval(function() {
+    //   this.setState({elements: this.updatePoints()});
+    // }.bind(this), 1000);  
+  },
+
+  render: function() {
+    var i = 0;
+    var nodeData = this.state.elements.map(function (elm) {
+      i = i +1;
+      return (
+        React.createElement("g", null, 
+        React.createElement(MyRect, null)
+        )
+      );
+    });
+    return (
+      React.createElement("svg", {width: "100", height: "100"}, 
+        nodeData
+      )
+    );
+  }
+});
+
+React.render(
+  React.createElement(MySvg, null),
+  document.getElementById('svg')
+);
+
+module.exports = MySvg;
+});
+
+
+//# sourceMappingURL=app.js.map
